@@ -6,6 +6,12 @@ using System.Threading;
 
 namespace TrainTrack
 {
+    public enum SwitchDirection
+    {
+        Left,
+        Right
+    }
+
     class Program
     {
         static List<Passenger> passengers;
@@ -15,39 +21,16 @@ namespace TrainTrack
 
         static void Main(string[] args)
         {
-            
             FetchData();
-            Init.PrintHeader();
+            PrintHeader();
 
-            Console.WriteLine("The Railway Group 6");
-            Console.WriteLine("Passengers:");
-            Console.WriteLine("{0}\t{1}", "id", "fullName");
-            passengers.ForEach(p => {
-                Console.WriteLine("{0}\t{1}", p.ID, p.FullName);
-                Thread.Sleep(10);
-            });
+            for (int i = 0; i < 2; i++)
+                AddToControllerLog("hej" + i);
 
-            Console.WriteLine("\nTrains:");
-            Console.WriteLine("{0}\t{1}\t\t\t{2}\t{3}", "id", "name", "speed", "operated");
-            trains.ForEach(t => {
-                Console.WriteLine("{0}\t{1}\t\t{2}\t{3}", t.ID, t.Name, t.Speed, t.Operated);
-                Thread.Sleep(80);
-            });
+            timeTables.ForEach(tt => Console.WriteLine("{0}\t{1}\t{2}\t{3}", tt.TrainID, tt.StationID, tt.DepartureTime, tt.ArrivalTime));
 
-            Console.WriteLine("\nStations:");
-            Console.WriteLine("{0}\t{1}\t\t\t{2}", "id", "name", "endStation");
-            stations.ForEach(s => {
-                Console.WriteLine("{0}\t{1}\t\t{2}", s.ID, s.Name.Substring(0,(s.Name.Length > 15) ? 15 : s.Name.Length), s.EndStation);
-                Thread.Sleep(80);
-            });
-
-            Console.WriteLine("\nTimeTables:");
-            Console.WriteLine("{0}\t{1}\t\t{2}\t{3}", "trainID", "stationID", "departureTime", "arrivalTime");
-            timeTables.ForEach(t => {
-                Console.WriteLine("{0}\t{1}\t\t\t{2}\t\t{3}", t.TrainID, t.StationID, t.DepartureTime, t.ArrivalTime);
-                Thread.Sleep(80);
-            });
-
+            // Control Tower
+            // Carlos Lynos
         }
 
         /// <summary>
@@ -55,10 +38,31 @@ namespace TrainTrack
         /// </summary>
         static void FetchData()
         {
-            passengers = Init.GetPassengers(Init.ReadFile(@"assets/passengers.txt"));
-            trains = Init.GetTrains(Init.ReadFile(@"assets/trains.txt"));
-            stations = Init.GetStations(Init.ReadFile(@"assets/stations.txt"));
-            timeTables = Init.GetTimeTables(Init.ReadFile(@"assets/timetable.txt"));
+            passengers = ORM.GetPassengers(ORM.ReadFile(@"assets/passengers.txt"));
+            trains = ORM.GetTrains(ORM.ReadFile(@"assets/trains.txt"));
+            stations = ORM.GetStations(ORM.ReadFile(@"assets/stations.txt"));
+            timeTables = ORM.GetTimeTables(ORM.ReadFile(@"assets/timetable.txt"));
+        }
+
+        public static void AddToControllerLog(string logEntry)
+        {
+            File.AppendAllText(@"assets/controllerlog.txt", logEntry + Environment.NewLine);
+        }
+
+        /// <summary>
+        /// Not neccessary, but cool
+        /// </summary>
+        public static void PrintHeader()
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("\n");
+            Console.WriteLine(@"
+   _ \         _)  |                             ___|                               /    
+  |   |   _` |  |  | \ \  \   /  _` |  |   |    |       __|  _ \   |   |  __ \      _ \  
+  __ <   (   |  |  |  \ \  \ /  (   |  |   |    |   |  |    (   |  |   |  |   |    (   | 
+ _| \_\ \__,_| _| _|   \_/\_/  \__,_| \__, |   \____| _|   \___/  \__,_|  .__/    \___/  
+                                      ____/                              _|              ");
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 
@@ -76,16 +80,8 @@ namespace TrainTrack
         }
     }
 
-    /// <summary>
-    /// Interface for any object that can be positioned inside a train tile item
-    /// </summary>
-    public interface ITileItem
-    {
-        // Not yet implemented
-        // Tile tile;
-    }
 
-    public class Train : ITileItem
+    public class Train 
     {
         private int _id;
         private string _name;
@@ -104,23 +100,9 @@ namespace TrainTrack
             _speed = speed;
             _operated = operated;
         }
-
-        public void DoStuff()
-        {
-            for (int i = 0; i < 40; i++)
-            {
-                Console.WriteLine($"{this.Name} travelling {i}");
-                Thread.Sleep(this.Speed);
-            }
-        }
     }
 
-    public class Route
-    {
-
-    }
-
-    public class Station : ITileItem
+    public class Station
     {
         private int _id;
         private string _name;
@@ -138,9 +120,18 @@ namespace TrainTrack
         }
     }
 
-    public class Switch : ITileItem
+    public class Switch
     {
+        private SwitchDirection _direction;
+        SwitchDirection Direction { 
+            get => _direction;
+            set => _direction = (value == SwitchDirection.Left || value == SwitchDirection.Right) ? value : throw new ArgumentException();
+        }
 
+        public Switch(SwitchDirection direction)
+        {
+            Direction = direction;
+        }
     }
 
     public class TimeTable

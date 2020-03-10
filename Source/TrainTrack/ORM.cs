@@ -4,24 +4,8 @@ using System.IO;
 
 namespace TrainTrack
 {
-    public class Init
+    public class ORM
     {
-        /// <summary>
-        /// Not neccessary, but cool
-        /// </summary>
-        public static void PrintHeader()
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("\n");
-            Console.WriteLine(@"
-   _ \         _)  |                             ___|                               /    
-  |   |   _` |  |  | \ \  \   /  _` |  |   |    |       __|  _ \   |   |  __ \      _ \  
-  __ <   (   |  |  |  \ \  \ /  (   |  |   |    |   |  |    (   |  |   |  |   |    (   | 
- _| \_\ \__,_| _| _|   \_/\_/  \__,_| \__, |   \____| _|   \___/  \__,_|  .__/    \___/  
-                                      ____/                              _|              ");
-            Console.ForegroundColor = ConsoleColor.White;
-        }
-
         public static string[] ReadFile(string url)
         {
             var data = File.ReadAllLines(url);
