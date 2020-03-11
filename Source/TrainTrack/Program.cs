@@ -29,28 +29,21 @@ namespace TrainTrack
             ORM.FetchData(ref passengers, ref trains, ref stations, ref timeTables);
             PrintHeader();
 
-            var plan1 = new TrainPlan()
-                .SetForTrain(trains[0])
-                .StartTrain(":)")
-                .FollowTimeTable(timeTables);
-
-            var plan2 = new TrainPlan()
-                .SetForTrain(trains[1])
-                .StartTrain(":)")
-                .FollowTimeTable(timeTables);
-            //.StopTrain();
-            // @Spy Pierre
-            // Alot of groups are trying to move the train from StationA to StationB
-
-            //Train train1 = new Train(1,"McTrain", 100, true).StartTrain("10:40");
-
-            for (int i = 0; i < 2; i++)
-                AddToControllerLog("hej" + i);
-
-            timeTables.ForEach(tt => Console.WriteLine("{0}\t{1}\t{2}\t{3}", tt.TrainID, tt.StationID, tt.DepartureTime, tt.ArrivalTime));
-
             // Control Tower
             // Carlos Lynos
+
+            var plan1 = new TrainPlan()
+                .SetForTrain(trains[0])
+                .FollowTimeTable(timeTables)
+                .StartTrain();
+
+            //var plan2 = new TrainPlan()
+            //    .SetForTrain(trains[1])
+            //    .FollowTimeTable(timeTables)
+            //    .StartTrain();
+
+            // @Spy Pierre
+            // Alot of groups are trying to move the train from StationA to StationB
         }
 
         public static void AddToControllerLog(string logEntry)
@@ -117,7 +110,7 @@ namespace TrainTrack
         public string Name { get => _name; }
         public int Speed { get => _speed; }
         public bool Operated { get => _operated; }
-        public string StartTime { get => _startTime; set; }
+        public string StartTime { get => _startTime; set { _startTime = value; } }
 
         Thread TrainThread;
         List<TimeTable> TimeTables;
@@ -143,9 +136,8 @@ namespace TrainTrack
             return this;
         }
 
-        public Train StartTrain(string startTime)
+        public Train StartTrain()
         {
-            StartTime = startTime;
             Console.WriteLine("StartCycle enter");
 
             Thread.Sleep(1000);
@@ -153,6 +145,9 @@ namespace TrainTrack
             Console.WriteLine("StartCycle complete.");
 
             TrainThread.Start();
+            
+            StartTime = TimeTables.First().DepartureTime;
+            TimeTables.Remove(TimeTables.First());
 
             return this;
         }
@@ -183,7 +178,9 @@ namespace TrainTrack
                 timeElapsed += 50;
                 if( (timeElapsed % 1000) == 0)
                 {
-                    TimeTables.FirstOrDefault(t => t.ArrivalTime)
+                    Console.WriteLine($"Start time for train {this.Name} is {this.StartTime}");
+                    Console.WriteLine($"Next station is due {TimeTables.First().ArrivalTime}");
+                    //Console.WriteLine(TimeTables.Count());
                 }
             }
         }
