@@ -34,7 +34,8 @@ namespace TrainTrack
             //     departureTime = timeTable.DepartureTime;
             //}
             Task<bool> startTrain = StartCycle("11:40");
-            Thread cycle = new Thread(new ThreadStart(HandleCycle));
+            Thread cycle = new Thread(HandleCycle);
+            cycle.Start();
 
             for (int i = 0; i < 2; i++)
                 AddToControllerLog("hej" + i);
@@ -66,30 +67,7 @@ namespace TrainTrack
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        public static async Task<bool> StartCycle(string startTime)
-        {
-            Console.WriteLine("StartCycle enter");
-            while(true)
-            {
-                DateTime now = DateTime.Now;
-                Console.WriteLine(now.Hour + ":" + now.Minute);
-                if((now.Hour + ":" + now.Minute) == startTime)
-                {
-                    Console.WriteLine("StartCycle complete.");
-                    return true;
-                }
-                else
-                {
-                    Console.WriteLine("Waiting");
-                }
-                Thread.Sleep(5000);
-            }
-        }
-
-        public static void HandleCycle()
-        {
-
-        }
+        
     }
 
  
@@ -127,6 +105,21 @@ namespace TrainTrack
             _name = name;
             _speed = speed;
             _operated = operated;
+        }
+
+        public Train StartTrain(string startTime)
+        {
+            Console.WriteLine("StartCycle enter");
+
+            Thread.Sleep(5000);
+
+            Console.WriteLine("StartCycle complete.");
+            return this;
+        }
+        //@to do fix this. anders
+        public static void HandleCycle()
+        {
+            Console.WriteLine("HandleCyckel start");
         }
     }
 
