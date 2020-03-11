@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +26,11 @@ namespace TrainTrack
             ORM.FetchData(ref passengers, ref trains, ref stations, ref timeTables);
             PrintHeader();
 
-
+            var plan1 = new TrainPlan()
+                .SetForTrain(trains[0])
+                .StartTrain(":)")
+                .FollowTimeTable(timeTables)
+                .StopTrain();
             // @Spy Pierre
             // Alot of groups are trying to move the train from StationA to StationB
             //string departureTime;
@@ -33,9 +38,7 @@ namespace TrainTrack
             //{
             //     departureTime = timeTable.DepartureTime;
             //}
-            Task<bool> startTrain = StartCycle("11:40");
-            Thread cycle = new Thread(HandleCycle);
-            cycle.Start();
+            Train train1 = new Train(1,"McTrain", 100, true).StartTrain("10:40");
 
             for (int i = 0; i < 2; i++)
                 AddToControllerLog("hej" + i);
@@ -70,7 +73,18 @@ namespace TrainTrack
         
     }
 
- 
+    public class TrainPlan
+    {
+
+        public TrainPlan()
+        {
+        }
+
+        public Train SetForTrain(Train train)
+        {
+            return train;
+        }
+    }
 
     public class Passenger
     {
@@ -99,12 +113,17 @@ namespace TrainTrack
         public int Speed { get => _speed; }
         public bool Operated { get => _operated; }
 
+        Thread TrainThread;
+        TimeTable TimeTable;
+
         public Train(int id, string name, int speed, bool operated)
         {
             _id = id;
             _name = name;
             _speed = speed;
             _operated = operated;
+            TrainThread = new Thread(TrainCycle);
+            TimeTable = 
         }
 
         public Train StartTrain(string startTime)
@@ -114,12 +133,23 @@ namespace TrainTrack
             Thread.Sleep(5000);
 
             Console.WriteLine("StartCycle complete.");
+
+            TrainThread.Start();
+
             return this;
         }
         //@to do fix this. anders
-        public static void HandleCycle()
+        public void TrainCycle()
         {
             Console.WriteLine("HandleCyckel start");
+        }
+
+        public Train FollowTimeTable(List<TimeTable> timeTables)
+        {
+            timeTables.Where(t => t.TrainID == _id) {
+
+            }
+            return this;
         }
     }
 
