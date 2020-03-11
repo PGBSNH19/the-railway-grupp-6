@@ -28,7 +28,12 @@ namespace TrainTrack
 
             // @Spy Pierre
             // Alot of groups are trying to move the train from StationA to StationB
-            Task<bool> startTrain = StartCycle("11:28");
+            //string departureTime;
+            //foreach(var timeTable in timeTables)
+            //{
+            //     departureTime = timeTable.DepartureTime;
+            //}
+            Task<bool> startTrain = StartCycle("11:40");
             Thread cycle = new Thread(new ThreadStart(HandleCycle));
 
             for (int i = 0; i < 2; i++)
@@ -64,10 +69,10 @@ namespace TrainTrack
         public static async Task<bool> StartCycle(string startTime)
         {
             Console.WriteLine("StartCycle enter");
-            DateTime now = DateTime.Now;
-            Console.WriteLine(now.Hour + ":" + now.Minute);
             while(true)
             {
+                DateTime now = DateTime.Now;
+                Console.WriteLine(now.Hour + ":" + now.Minute);
                 if((now.Hour + ":" + now.Minute) == startTime)
                 {
                     Console.WriteLine("StartCycle complete.");
