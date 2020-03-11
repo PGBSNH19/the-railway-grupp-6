@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -21,6 +22,8 @@ namespace TrainTrack
         static List<Station> stations;
         static List<TimeTable> timeTables;
 
+        DateTime currentTime = DateTime.Now;
+
         static void Main(string[] args)
         {
             ORM.FetchData(ref passengers, ref trains, ref stations, ref timeTables);
@@ -30,7 +33,12 @@ namespace TrainTrack
                 .SetForTrain(trains[0])
                 .StartTrain(":)")
                 .FollowTimeTable(timeTables);
-                //.StopTrain();
+
+            var plan2 = new TrainPlan()
+                .SetForTrain(trains[1])
+                .StartTrain(":)")
+                .FollowTimeTable(timeTables);
+            //.StopTrain();
             // @Spy Pierre
             // Alot of groups are trying to move the train from StationA to StationB
 
@@ -112,13 +120,15 @@ namespace TrainTrack
         Thread TrainThread;
         List<TimeTable> TimeTables;
 
+        //static Timer trainProcess = new Timer(ProcessTrain, null, 0, 50);
+
         public Train(int id, string name, int speed, bool operated)
         {
             _id = id;
             _name = name;
             _speed = speed;
             _operated = operated;
-            TrainThread = new Thread(TrainCycle);
+            TrainThread = new Thread(ProcessTrain);
             TimeTables = new List<TimeTable>();
         }
 
@@ -144,8 +154,9 @@ namespace TrainTrack
             return this;
         }
 
-        //@to do fix this. anders
-        public void TrainCycle()
+        //@to do fix this. 
+        [Obsolete]
+        public void ProcessTrainDeprecated()
         {
             // Count time
             double minutesPassed = 0.0;
@@ -159,6 +170,19 @@ namespace TrainTrack
                     Console.WriteLine("Foo");
             }
             Console.WriteLine("HandleCyckel start");
+        }
+
+        public void ProcessTrain()
+        {
+            int timeElapsed = 0;
+            while (true) {
+                Thread.Sleep(50);
+                timeElapsed += 50;
+                if( (timeElapsed % 1000) == 0)
+                {
+                    Console.WriteLine(this.Name + "has travelled one minute");
+                }
+            }
         }
     }
 
