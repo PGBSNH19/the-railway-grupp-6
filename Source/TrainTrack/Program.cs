@@ -29,16 +29,12 @@ namespace TrainTrack
             var plan1 = new TrainPlan()
                 .SetForTrain(trains[0])
                 .StartTrain(":)")
-                .FollowTimeTable(timeTables)
-                .StopTrain();
+                .FollowTimeTable(timeTables);
+                //.StopTrain();
             // @Spy Pierre
             // Alot of groups are trying to move the train from StationA to StationB
-            //string departureTime;
-            //foreach(var timeTable in timeTables)
-            //{
-            //     departureTime = timeTable.DepartureTime;
-            //}
-            Train train1 = new Train(1,"McTrain", 100, true).StartTrain("10:40");
+
+            //Train train1 = new Train(1,"McTrain", 100, true).StartTrain("10:40");
 
             for (int i = 0; i < 2; i++)
                 AddToControllerLog("hej" + i);
@@ -114,7 +110,7 @@ namespace TrainTrack
         public bool Operated { get => _operated; }
 
         Thread TrainThread;
-        TimeTable TimeTable;
+        List<TimeTable> TimeTables;
 
         public Train(int id, string name, int speed, bool operated)
         {
@@ -123,7 +119,14 @@ namespace TrainTrack
             _speed = speed;
             _operated = operated;
             TrainThread = new Thread(TrainCycle);
-            TimeTable = 
+            TimeTables = new List<TimeTable>();
+        }
+
+        public Train FollowTimeTable(List<TimeTable> timeTables)
+        {
+            TimeTables = timeTables.Where(t => t.TrainID == _id).ToList();
+            TimeTables.ForEach(t => Console.WriteLine(t.StationID));
+            return this;
         }
 
         public Train StartTrain(string startTime)
@@ -138,18 +141,11 @@ namespace TrainTrack
 
             return this;
         }
+
         //@to do fix this. anders
         public void TrainCycle()
         {
             Console.WriteLine("HandleCyckel start");
-        }
-
-        public Train FollowTimeTable(List<TimeTable> timeTables)
-        {
-            timeTables.Where(t => t.TrainID == _id) {
-
-            }
-            return this;
         }
     }
 
@@ -197,7 +193,7 @@ namespace TrainTrack
         public string DepartureTime { get => _departureTime; }
         public string ArrivalTime { get => _arrivalTime; }
 
-        public TimeTable(int stationId, int trainId, string departureTime, string arrivalTime)
+        public TimeTable(int trainId, int stationId, string departureTime, string arrivalTime)
         {
             _stationId = stationId;
             _trainId = trainId;
