@@ -111,11 +111,13 @@ namespace TrainTrack
         private string _name;
         private int _speed;
         private bool _operated;
+        private string _startTime;
 
         public int ID { get => _id; }
         public string Name { get => _name; }
         public int Speed { get => _speed; }
         public bool Operated { get => _operated; }
+        public string StartTime { get => _startTime; set; }
 
         Thread TrainThread;
         List<TimeTable> TimeTables;
@@ -143,6 +145,7 @@ namespace TrainTrack
 
         public Train StartTrain(string startTime)
         {
+            StartTime = startTime;
             Console.WriteLine("StartCycle enter");
 
             Thread.Sleep(1000);
@@ -180,7 +183,7 @@ namespace TrainTrack
                 timeElapsed += 50;
                 if( (timeElapsed % 1000) == 0)
                 {
-                    Console.WriteLine(this.Name + "has travelled one minute");
+                    TimeTables.FirstOrDefault(t => t.ArrivalTime)
                 }
             }
         }
