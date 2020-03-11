@@ -6,6 +6,22 @@ namespace TrainTrack
 {
     public class ORM
     {
+        /// <summary>
+        /// Reads all data from ./assets folder and populates static lists in Program
+        /// </summary>
+        public static void FetchData(
+            ref List<Passenger> passengers, 
+            ref List<Train> trains,
+            ref List<Station> stations,
+            ref List<TimeTable> timeTables
+            )
+        {
+            passengers = GetPassengers(ReadFile(@"assets/passengers.txt"));
+            trains = GetTrains(ReadFile(@"assets/trains.txt"));
+            stations = GetStations(ReadFile(@"assets/stations.txt"));
+            timeTables = GetTimeTables(ReadFile(@"assets/timetable.txt"));
+        }
+
         public static string[] ReadFile(string url)
         {
             var data = File.ReadAllLines(url);

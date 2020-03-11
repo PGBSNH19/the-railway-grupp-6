@@ -21,8 +21,13 @@ namespace TrainTrack
 
         static void Main(string[] args)
         {
-            FetchData();
+            ORM.FetchData(ref passengers, ref trains, ref stations, ref timeTables);
             PrintHeader();
+
+
+            // @Spy Pierre
+            // Alot of groups are trying to move the train from StationA to StationB
+            Thread cycle = new Thread(new ThreadStart(HandleCycle));
 
             for (int i = 0; i < 2; i++)
                 AddToControllerLog("hej" + i);
@@ -31,17 +36,6 @@ namespace TrainTrack
 
             // Control Tower
             // Carlos Lynos
-        }
-
-        /// <summary>
-        /// Reads all data from ./assets folder and populates static lists in Program
-        /// </summary>
-        static void FetchData()
-        {
-            passengers = ORM.GetPassengers(ORM.ReadFile(@"assets/passengers.txt"));
-            trains = ORM.GetTrains(ORM.ReadFile(@"assets/trains.txt"));
-            stations = ORM.GetStations(ORM.ReadFile(@"assets/stations.txt"));
-            timeTables = ORM.GetTimeTables(ORM.ReadFile(@"assets/timetable.txt"));
         }
 
         public static void AddToControllerLog(string logEntry)
@@ -64,7 +58,15 @@ namespace TrainTrack
                                       ____/                              _|              ");
             Console.ForegroundColor = ConsoleColor.White;
         }
+
+        public static void HandleCycle()
+        {
+            DateTime time = new DateTime();
+
+        }
     }
+
+ 
 
     public class Passenger
     {
