@@ -27,7 +27,7 @@ namespace TrainTrack
             PrintHeader();
 
             var plan1 = new TrainPlan()
-                .SetForTrain(trains[0])
+                .SetForTrain(trains[1])
                 .StartTrain(":)")
                 .FollowTimeTable(timeTables);
                 //.StopTrain();
@@ -124,6 +124,8 @@ namespace TrainTrack
 
         public Train FollowTimeTable(List<TimeTable> timeTables)
         {
+            // @pierre-nygard
+            // Continue here
             TimeTables = timeTables.Where(t => t.TrainID == _id).ToList();
             TimeTables.ForEach(t => Console.WriteLine(t.StationID));
             return this;
