@@ -180,7 +180,8 @@ namespace TrainTrack
                 {
                     DateTime arrivalTime = DateTime.Parse(TimeTables.First().ArrivalTime);
                     DateTime startTime = DateTime.Parse(this.StartTime);
-                    if (arrivalTime == startTime)
+                    TimeSpan diff = (arrivalTime - startTime);
+                    if ((timeElapsed/1000)== diff.TotalMinutes)
                     {
                         Console.WriteLine("Train stopping at station.");
                         Thread.Sleep(2000);
@@ -190,6 +191,7 @@ namespace TrainTrack
                     {
                         Console.WriteLine($"Start time for train {this.Name} is {this.StartTime}");
                         Console.WriteLine($"Next station is due {TimeTables.First().ArrivalTime}");
+                        
                     }   
                     //Console.WriteLine(TimeTables.Count());
                 }
