@@ -27,7 +27,7 @@ namespace TrainTrack
             PrintHeader();
 
             var plan1 = new TrainPlan()
-                .SetForTrain(trains[1])
+                .SetForTrain(trains[0])
                 .StartTrain(":)")
                 .FollowTimeTable(timeTables);
                 //.StopTrain();
@@ -127,7 +127,7 @@ namespace TrainTrack
             // @pierre-nygard
             // Continue here
             TimeTables = timeTables.Where(t => t.TrainID == _id).ToList();
-            TimeTables.ForEach(t => Console.WriteLine(t.StationID));
+            TimeTables.ForEach(t => Console.WriteLine(t.ArrivalTime));
             return this;
         }
 
@@ -135,7 +135,7 @@ namespace TrainTrack
         {
             Console.WriteLine("StartCycle enter");
 
-            Thread.Sleep(5000);
+            Thread.Sleep(1000);
 
             Console.WriteLine("StartCycle complete.");
 
@@ -147,6 +147,17 @@ namespace TrainTrack
         //@to do fix this. anders
         public void TrainCycle()
         {
+            // Count time
+            double minutesPassed = 0.0;
+            while (true)
+            {
+                Console.WriteLine(this._name + " travelling");
+                Thread.Sleep(50);
+                minutesPassed += 0.05;
+
+                if ((minutesPassed % 1) == 0)
+                    Console.WriteLine("Foo");
+            }
             Console.WriteLine("HandleCyckel start");
         }
     }
