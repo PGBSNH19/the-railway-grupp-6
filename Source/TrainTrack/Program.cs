@@ -178,8 +178,19 @@ namespace TrainTrack
                 timeElapsed += 50;
                 if( (timeElapsed % 1000) == 0)
                 {
-                    Console.WriteLine($"Start time for train {this.Name} is {this.StartTime}");
-                    Console.WriteLine($"Next station is due {TimeTables.First().ArrivalTime}");
+                    DateTime arrivalTime = DateTime.Parse(TimeTables.First().ArrivalTime);
+                    DateTime startTime = DateTime.Parse(this.StartTime);
+                    if (arrivalTime == startTime)
+                    {
+                        Console.WriteLine("Train stopping at station.");
+                        Thread.Sleep(2000);
+                        Console.WriteLine("Train departuring...");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Start time for train {this.Name} is {this.StartTime}");
+                        Console.WriteLine($"Next station is due {TimeTables.First().ArrivalTime}");
+                    }   
                     //Console.WriteLine(TimeTables.Count());
                 }
             }
@@ -196,6 +207,8 @@ namespace TrainTrack
         public string Name { get => _name; }
         public bool EndStation { get => _endStation; }
 
+        //Spy @NorShiervani: Another group used distance and trainspeed to
+        //calculate the time the train arrives.
         public Station(int id, string name, bool endStation)
         {
             _id = id;
