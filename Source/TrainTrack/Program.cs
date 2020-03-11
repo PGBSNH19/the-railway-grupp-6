@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace TrainTrack
 {
@@ -27,6 +28,7 @@ namespace TrainTrack
 
             // @Spy Pierre
             // Alot of groups are trying to move the train from StationA to StationB
+            Task<bool> startTrain = StartCycle("11:28");
             Thread cycle = new Thread(new ThreadStart(HandleCycle));
 
             for (int i = 0; i < 2; i++)
@@ -59,9 +61,28 @@ namespace TrainTrack
             Console.ForegroundColor = ConsoleColor.White;
         }
 
+        public static async Task<bool> StartCycle(string startTime)
+        {
+            Console.WriteLine("StartCycle enter");
+            DateTime now = DateTime.Now;
+            Console.WriteLine(now.Hour + ":" + now.Minute);
+            while(true)
+            {
+                if((now.Hour + ":" + now.Minute) == startTime)
+                {
+                    Console.WriteLine("StartCycle complete.");
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("Waiting");
+                }
+                Thread.Sleep(5000);
+            }
+        }
+
         public static void HandleCycle()
         {
-            DateTime time = new DateTime();
 
         }
     }
