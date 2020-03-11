@@ -173,17 +173,26 @@ namespace TrainTrack
         public void ProcessTrain()
         {
             int timeElapsed = 0;
+            DateTime arrivalTime;
+            DateTime startTime;
+      
             while (true) {
                 Thread.Sleep(50);
                 timeElapsed += 50;
                 if( (timeElapsed % 1000) == 0)
                 {
-                    DateTime arrivalTime = DateTime.Parse(TimeTables.First().ArrivalTime);
-                    DateTime startTime = DateTime.Parse(this.StartTime);
+                    arrivalTime = DateTime.Parse(TimeTables.First().ArrivalTime);
+                    startTime = DateTime.Parse(this.StartTime);
                     TimeSpan diff = (arrivalTime - startTime);
                     if ((timeElapsed/1000)== diff.TotalMinutes)
                     {
-                        Console.WriteLine("Train stopping at station.");
+                        Console.WriteLine("Train stopping at station: " + TimeTables.First().StationID);
+                        TimeTables.Remove(TimeTables.First());
+                        if(TimeTables.Count == 0)
+                        {
+                            TrainThread;
+                            return;
+                        }
                         Thread.Sleep(2000);
                         Console.WriteLine("Train departuring...");
                     }
@@ -193,7 +202,6 @@ namespace TrainTrack
                         Console.WriteLine($"Next station is due {TimeTables.First().ArrivalTime}");
                         
                     }   
-                    //Console.WriteLine(TimeTables.Count());
                 }
             }
         }
