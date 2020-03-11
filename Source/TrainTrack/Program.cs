@@ -37,6 +37,11 @@ namespace TrainTrack
                 .FollowTimeTable(timeTables)
                 .StartTrain();
 
+            var plan2 = new TrainPlan()
+                .SetForTrain(trains[1])
+                .FollowTimeTable(timeTables)
+                .StartTrain();
+
             //var plan2 = new TrainPlan()
             //    .SetForTrain(trains[1])
             //    .FollowTimeTable(timeTables)
@@ -187,10 +192,10 @@ namespace TrainTrack
                     if ((timeElapsed/1000)== diff.TotalMinutes)
                     {
                         Console.WriteLine("Train stopping at station: " + TimeTables.First().StationID);
+                        Program.AddToControllerLog($"Train {this.Name} stopping at station: " + TimeTables.First().StationID);
                         TimeTables.Remove(TimeTables.First());
                         if(TimeTables.Count == 0)
                         {
-                            TrainThread;
                             return;
                         }
                         Thread.Sleep(2000);
@@ -199,6 +204,7 @@ namespace TrainTrack
                     else
                     {
                         Console.WriteLine($"Start time for train {this.Name} is {this.StartTime}");
+                        //Console.WriteLine($"{DateTime.Parse(timeElapsed.ToString()).ToString()}");
                         Console.WriteLine($"Next station is due {TimeTables.First().ArrivalTime}");
                         
                     }   
