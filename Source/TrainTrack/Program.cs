@@ -15,8 +15,8 @@ namespace TrainTrack
         public static List<Train> trains;
         public static List<Station> stations;
         public static List<TimeTable> timeTables;
-        public TrainSwitch switch1 = new TrainSwitch { Status = SwitchStatus.On };
-        public TrainSwitch switch2 = new TrainSwitch { Status = SwitchStatus.On };
+        public static TrainSwitch switch1 = new TrainSwitch { Status = SwitchStatus.On };
+        public static TrainSwitch switch2 = new TrainSwitch { Status = SwitchStatus.On };
 
         public static DateTime worldTime;
 
@@ -29,7 +29,7 @@ namespace TrainTrack
             // Control Tower
             // Carlos Lynos
             var plan1 = new TrainPlan()
-                .SetSwitch(switch1, "10:32")
+                .TurnOffSwitch(switch1, "10:21")
                 .SetForTrain(trains[0])
                 .FollowTimeTable(timeTables)
                 .StartTrain();
@@ -89,12 +89,24 @@ namespace TrainTrack
         //    get => _name;
         //    set => _name = value;
         //}
+        private DateTime _time;
         private SwitchStatus _status;
         public SwitchStatus Status
         {
             get => _status;
             set => _status = value;
         }
+
+        public void SetTime(string time)
+        {
+            _time = DateTime.Parse(time);
+        }
+
+        public DateTime GetTime()
+        {
+            return _time;
+        }
+
     }
 
     public enum SwitchStatus
@@ -113,6 +125,12 @@ namespace TrainTrack
         public Train SetForTrain(Train train)
         {
             return train;
+        }
+
+        public TrainPlan TurnOffSwitch(TrainSwitch trainSwitch, string time)
+        {
+            trainSwitch.Status = SwitchStatus.Off;
+            return this;
         }
     }
 
@@ -192,6 +210,17 @@ namespace TrainTrack
             while (true)
             {
                 Thread.Sleep(250);
+
+                if(Program.switch1.GetTime().ToString("hh:mm") == Program.worldTime.ToString("hh:mm"))
+                {
+                    Console.WriteLine("From ProcessTrain: switch1 turn off");
+                }
+                else
+                {
+                    //Console.WriteLine("Switch1 time: " + Program.switch1.GetTime().ToString());
+                    //Console.WriteLine("World time: " + Program.worldTime.ToString());
+                }
+
                 if (Program.worldTime.Minute == arrivalTime.Minute && Program.worldTime.Hour == arrivalTime.Hour)
                 {
                     TimeTables.Remove(TimeTables.First());
@@ -200,7 +229,10 @@ namespace TrainTrack
                     Thread.Sleep(3000);
 
                     if (TimeTables.Count == 0)
+                    {
+                        // TrainThread should Abort but cannot
                         return;
+                    }
 
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine($"{this.Name} departing...");
@@ -230,12 +262,6 @@ namespace TrainTrack
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(logEntry);
             Console.ForegroundColor = ConsoleColor.White;
-        }
-
-        internal object SetSwitch(TrainSwitch switch1, string time)
-        {
-
-            throw new NotImplementedException();
         }
     }
 
