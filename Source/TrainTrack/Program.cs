@@ -143,7 +143,6 @@ namespace TrainTrack
         }
     }
 
-
     public class Train
     {
         private int _id;
@@ -179,6 +178,8 @@ namespace TrainTrack
 
         public async Task StartTrain()
         {
+            if(TimeTable)
+
             StartTime = TimeTables.First().DepartureTime;
             TimeTables.Remove(TimeTables.First());
 
