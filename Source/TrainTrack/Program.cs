@@ -37,7 +37,7 @@ namespace TrainTrack
             var plan2 = new TrainPlan()
                 .TurnOffSwitch(switch2,"10:38")
                 .SetForTrain(trains[1])
-                .FollowTimeTable(timeTables)
+                .FollowTimeTable(new List<TimeTable>())
                 .StartTrain();
 
             Console.ReadLine();
@@ -178,7 +178,6 @@ namespace TrainTrack
 
         public async Task StartTrain()
         {
-            if(TimeTable)
 
             StartTime = TimeTables.First().DepartureTime;
             TimeTables.Remove(TimeTables.First());

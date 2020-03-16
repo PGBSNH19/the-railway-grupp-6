@@ -16,23 +16,43 @@ namespace UnitTestProject1
         [TestMethod]
         public void Test_NoTrainSetThrowsException()
         {
-            Assert.ThrowsException<NullReferenceException>(() => 
-            new TrainPlan()
-            .TurnOffSwitch(new TrainSwitch { Status = SwitchStatus.On }, "10:32")
-            .SetForTrain(null)
-            .FollowTimeTable(timeTables)
-            .StartTrain());
+            bool failed;
+            //Arrange
+            var timeTable = new List<TimeTable> { new TimeTable(1, 1, null, "10:20") };
+
+            try
+            {
+                //Act
+                var result = new TrainPlan()
+                .TurnOffSwitch(new TrainSwitch { Status = SwitchStatus.On }, "10:32")
+                .SetForTrain(null)
+                .FollowTimeTable(timeTable)
+                .StartTrain();
+
+                failed = false;
+            }
+            catch
+            {
+                failed = true;
+            }
+            
+
+            //Assert
+            Assert.AreEqual(true, failed);
         }
 
         [TestMethod]
         public void Test_2()
         {
-            Assert.ThrowsException<NullReferenceException>(() =>
-            new TrainPlan()
-            .TurnOffSwitch(new TrainSwitch { Status = SwitchStatus.On }, "10:32")
-            .SetForTrain(trains[0])
-            .FollowTimeTable(null)
-            .StartTrain());
+            //Arrange
+            var train = new Train(1, "mcTrainface", 60, true);
+
+            //Assert.ThrowsException<NullReferenceException>(() =>
+            //new TrainPlan()
+            //.TurnOffSwitch(new TrainSwitch { Status = SwitchStatus.On }, "10:32")
+            //.SetForTrain(new Train())
+            //.FollowTimeTable(new List<TimeTable>())
+            //.StartTrain());
         }
     }
 }
