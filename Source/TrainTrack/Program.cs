@@ -35,6 +35,7 @@ namespace TrainTrack
                 .StartTrain();
 
             var plan2 = new TrainPlan()
+                .TurnOffSwitch(switch2,"10:38")
                 .SetForTrain(trains[1])
                 .FollowTimeTable(timeTables)
                 .StartTrain();
@@ -205,15 +206,15 @@ namespace TrainTrack
             {
                 Thread.Sleep(1000);
 
-                if(Program.switch1.GetTime() == Program.worldTime)
+                if(Program.switch1.GetTime() == Program.worldTime &&  Program.switch1.Status== SwitchStatus.On)
                 {
                     Console.WriteLine("From ProcessTrain: switch1 turn off");
                     Program.switch1.Status = SwitchStatus.Off;
                 }
-                else
+                if (Program.switch2.GetTime() == Program.worldTime && Program.switch2.Status == SwitchStatus.On)
                 {
-                    //Console.WriteLine("Switch1 time: " + Program.switch1.GetTime().ToString());
-                    //Console.WriteLine("World time: " + Program.worldTime.ToString());
+                    Console.WriteLine("From ProcessTrain: switch2 turn off");
+                    Program.switch2.Status = SwitchStatus.Off;
                 }
 
                 if (Program.worldTime.Minute == arrivalTime.Minute && Program.worldTime.Hour == arrivalTime.Hour)
