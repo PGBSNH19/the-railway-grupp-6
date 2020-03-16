@@ -15,6 +15,8 @@ namespace TrainTrack
         public static List<Train> trains;
         public static List<Station> stations;
         public static List<TimeTable> timeTables;
+        public TrainSwitch switchX = new TrainSwitch { Status = SwitchStatus.On };
+        public TrainSwitch switchY = new TrainSwitch { Status = SwitchStatus.On };
 
         public static DateTime worldTime;
 
@@ -29,7 +31,7 @@ namespace TrainTrack
             var plan1 = new TrainPlan()
                 .SetForTrain(trains[0])
                 .FollowTimeTable(timeTables)
-                .SetSwitch(new TrainSwitch().switch1, SwitchDirection.Left, "10:30")
+                .SetSwitch()
                 .StartTrain();
 
             var plan2 = new TrainPlan()
@@ -40,25 +42,25 @@ namespace TrainTrack
             Console.ReadLine();
         }
 
-        public enum SwitchDirection
+        public enum SwitchStatus
         {
-            Left,
-            Right
+            On,
+            Off
         }
 
         public class TrainSwitch
         {
-            private string _name;
-            public string Name
+            //private string _name;
+            //public string Name
+            //{
+            //    get => _name;
+            //    set => _name = value;
+            //}
+            private SwitchStatus _status;
+            public SwitchStatus Status
             {
-                get => _name;
-                set => _name = value;
-            }
-            private SwitchDirection _direction;
-            public SwitchDirection Direction
-            {
-                get => _direction;
-                set => _direction = value;
+                get => _status;
+                set => _status = value;
             }
         }
 
@@ -219,6 +221,7 @@ namespace TrainTrack
             {
                 logEntry = $"{this.Name} making a stop at "
                     + $"{Program.stations.Where(s => s.ID == TimeTables.First().StationID).First().Name}";
+                
             }
             Program.AddToControllerLog(logEntry);
             Console.ForegroundColor = ConsoleColor.Cyan;
