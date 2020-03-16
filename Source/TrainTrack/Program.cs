@@ -15,8 +15,8 @@ namespace TrainTrack
         public static List<Train> trains;
         public static List<Station> stations;
         public static List<TimeTable> timeTables;
-        public TrainSwitch switchX = new TrainSwitch { Status = SwitchStatus.On };
-        public TrainSwitch switchY = new TrainSwitch { Status = SwitchStatus.On };
+        public TrainSwitch switch1 = new TrainSwitch { Status = SwitchStatus.On };
+        public TrainSwitch switch2 = new TrainSwitch { Status = SwitchStatus.On };
 
         public static DateTime worldTime;
 
@@ -26,15 +26,12 @@ namespace TrainTrack
         {
             Initiate();
 
-            var switch1 = new TrainSwitch() { };
-            var switch2 = new TrainSwitch() { };
-
             // Control Tower
             // Carlos Lynos
             var plan1 = new TrainPlan()
+                .SetSwitch(switch1, "10:32")
                 .SetForTrain(trains[0])
                 .FollowTimeTable(timeTables)
-                //.SetSwitch(switch1 , "10:32")
                 .StartTrain();
 
             var plan2 = new TrainPlan()
@@ -43,28 +40,6 @@ namespace TrainTrack
                 .StartTrain();
 
             Console.ReadLine();
-        }
-
-        public enum SwitchStatus
-        {
-            On,
-            Off
-        }
-
-        public class TrainSwitch
-        {
-            //private string _name;
-            //public string Name
-            //{
-            //    get => _name;
-            //    set => _name = value;
-            //}
-            private SwitchStatus _status;
-            public SwitchStatus Status
-            {
-                get => _status;
-                set => _status = value;
-            }
         }
 
         private static void Initiate()
@@ -104,6 +79,28 @@ namespace TrainTrack
                                       ____/                              _|              ");
             Console.ForegroundColor = ConsoleColor.White;
         }
+    }
+
+    public class TrainSwitch
+    {
+        //private string _name;
+        //public string Name
+        //{
+        //    get => _name;
+        //    set => _name = value;
+        //}
+        private SwitchStatus _status;
+        public SwitchStatus Status
+        {
+            get => _status;
+            set => _status = value;
+        }
+    }
+
+    public enum SwitchStatus
+    {
+        On,
+        Off
     }
 
     public class TrainPlan
@@ -234,6 +231,12 @@ namespace TrainTrack
             Console.WriteLine(logEntry);
             Console.ForegroundColor = ConsoleColor.White;
         }
+
+        internal object SetSwitch(TrainSwitch switch1, string time)
+        {
+
+            throw new NotImplementedException();
+        }
     }
 
     public class Station
@@ -255,22 +258,6 @@ namespace TrainTrack
             _endStation = endStation;
         }
     }
-
-    // Not in use
-    //public class Switch
-    //{
-    //    private SwitchDirection _direction;
-    //    SwitchDirection Direction
-    //    {
-    //        get => _direction;
-    //        set => _direction = (value == SwitchDirection.Left || value == SwitchDirection.Right) ? value : throw new ArgumentException("SwitchDirection must be enum Left or Right");
-    //    }
-
-    //    public Switch(SwitchDirection direction)
-    //    {
-    //        Direction = direction;
-    //    }
-    //}
 
     public class TimeTable
     {
