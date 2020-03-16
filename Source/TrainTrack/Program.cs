@@ -1,40 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace TrainTrack
 {
-    public enum SwitchDirection
-    {
-        Left,
-        Right
-    }
-
     class Program
     {
-        static List<Passenger> passengers;
-        static List<Train> trains;
-        static List<Station> stations;
-        static List<TimeTable> timeTables;
+        const string GENESIS_TIME = "10:00";
 
-        DateTime currentTime = DateTime.Now;
+        public static List<Passenger> passengers;
+        public static List<Train> trains;
+        public static List<Station> stations;
+        public static List<TimeTable> timeTables;
+
+        public static DateTime worldTime;
+
+        private static Timer t;
 
         static void Main(string[] args)
         {
-            ORM.FetchData(ref passengers, ref trains, ref stations, ref timeTables);
-            PrintHeader();
+            Initiate();
 
             // Control Tower
             // Carlos Lynos
-
             var plan1 = new TrainPlan()
                 .SetForTrain(trains[0])
                 .FollowTimeTable(timeTables)
+                .SetSwitch(new TrainSwitch().switch1, SwitchDirection.Left, "10:30")
                 .StartTrain();
 
             var plan2 = new TrainPlan()
@@ -42,13 +37,46 @@ namespace TrainTrack
                 .FollowTimeTable(timeTables)
                 .StartTrain();
 
-            //var plan2 = new TrainPlan()
-            //    .SetForTrain(trains[1])
-            //    .FollowTimeTable(timeTables)
-            //    .StartTrain();
+            Console.ReadLine();
+        }
 
-            // @Spy Pierre
-            // Alot of groups are trying to move the train from StationA to StationB
+        public enum SwitchDirection
+        {
+            Left,
+            Right
+        }
+
+        public class TrainSwitch
+        {
+            private string _name;
+            public string Name
+            {
+                get => _name;
+                set => _name = value;
+            }
+            private SwitchDirection _direction;
+            public SwitchDirection Direction
+            {
+                get => _direction;
+                set => _direction = value;
+            }
+        }
+
+        private static void Initiate()
+        {
+            ORM.FetchData(ref passengers, ref trains, ref stations, ref timeTables);
+            PrintHeader();
+            worldTime = DateTime.Parse(GENESIS_TIME);
+
+            t = new Timer(TimerCallback, worldTime, 0, 1000);
+        }
+
+        private static void TimerCallback(Object o)
+        {
+            worldTime = worldTime.AddMinutes(1);
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"\t{worldTime.ToString("hh:mm")}");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         public static void AddToControllerLog(string logEntry)
@@ -59,7 +87,7 @@ namespace TrainTrack
         /// <summary>
         /// Not neccessary, but cool
         /// </summary>
-        public static void PrintHeader()
+        private static void PrintHeader()
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write("\n");
@@ -71,8 +99,6 @@ namespace TrainTrack
                                       ____/                              _|              ");
             Console.ForegroundColor = ConsoleColor.White;
         }
-
-        
     }
 
     public class TrainPlan
@@ -103,7 +129,7 @@ namespace TrainTrack
     }
 
 
-    public class Train 
+    public class Train
     {
         private int _id;
         private string _name;
@@ -120,8 +146,6 @@ namespace TrainTrack
         Thread TrainThread;
         List<TimeTable> TimeTables;
 
-        //static Timer trainProcess = new Timer(ProcessTrain, null, 0, 50);
-
         public Train(int id, string name, int speed, bool operated)
         {
             _id = id;
@@ -134,82 +158,72 @@ namespace TrainTrack
 
         public Train FollowTimeTable(List<TimeTable> timeTables)
         {
-            // @pierre-nygard
-            // Continue here
             TimeTables = timeTables.Where(t => t.TrainID == _id).ToList();
-            TimeTables.ForEach(t => Console.WriteLine(t.ArrivalTime));
             return this;
         }
 
-        public Train StartTrain()
+        public async Task StartTrain()
         {
-            Console.WriteLine("StartCycle enter");
-
-            Thread.Sleep(1000);
-
-            Console.WriteLine("StartCycle complete.");
-
-            TrainThread.Start();
-            
             StartTime = TimeTables.First().DepartureTime;
             TimeTables.Remove(TimeTables.First());
 
-            return this;
-        }
+            var diff = DateTime.Parse(StartTime).Subtract(Program.worldTime).Duration();
 
-        //@to do fix this. 
-        [Obsolete]
-        public void ProcessTrainDeprecated()
-        {
-            // Count time
-            double minutesPassed = 0.0;
-            while (true)
-            {
-                Console.WriteLine(this._name + " travelling");
-                Thread.Sleep(50);
-                minutesPassed += 0.05;
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"{this.Name} departing in {diff.Minutes} minutes");
+            Console.ForegroundColor = ConsoleColor.White;
 
-                if ((minutesPassed % 1) == 0)
-                    Console.WriteLine("Foo");
-            }
-            Console.WriteLine("HandleCyckel start");
+            await Task.Delay(diff.Minutes * 1000);
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"{this.Name} departing --- Choo Choo");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            TrainThread.Start();
         }
 
         public void ProcessTrain()
         {
-            int timeElapsed = 0;
-            DateTime arrivalTime;
-            DateTime startTime;
-      
-            while (true) {
-                Thread.Sleep(50);
-                timeElapsed += 50;
-                if( (timeElapsed % 1000) == 0)
+            DateTime arrivalTime = DateTime.Parse(TimeTables.First().ArrivalTime);
+            DateTime startTime = DateTime.Parse(this.StartTime);
+
+            while (true)
+            {
+                Thread.Sleep(250);
+                if (Program.worldTime.Minute == arrivalTime.Minute && Program.worldTime.Hour == arrivalTime.Hour)
                 {
+                    TimeTables.Remove(TimeTables.First());
+                    TrainLogEntry();
+
+                    Thread.Sleep(3000);
+
+                    if (TimeTables.Count == 0)
+                        return;
+
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine($"{this.Name} departing...");
+                    Console.ForegroundColor = ConsoleColor.White;
                     arrivalTime = DateTime.Parse(TimeTables.First().ArrivalTime);
-                    startTime = DateTime.Parse(this.StartTime);
-                    TimeSpan diff = (arrivalTime - startTime);
-                    if ((timeElapsed/1000)== diff.TotalMinutes)
-                    {
-                        Console.WriteLine("Train stopping at station: " + TimeTables.First().StationID);
-                        Program.AddToControllerLog($"Train {this.Name} stopping at station: " + TimeTables.First().StationID);
-                        TimeTables.Remove(TimeTables.First());
-                        if(TimeTables.Count == 0)
-                        {
-                            return;
-                        }
-                        Thread.Sleep(2000);
-                        Console.WriteLine("Train departuring...");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Start time for train {this.Name} is {this.StartTime}");
-                        //Console.WriteLine($"{DateTime.Parse(timeElapsed.ToString()).ToString()}");
-                        Console.WriteLine($"Next station is due {TimeTables.First().ArrivalTime}");
-                        
-                    }   
                 }
             }
+        }
+
+        private void TrainLogEntry()
+        {
+            string logEntry;
+            if (TimeTables.Count == 0)
+            {
+                logEntry = $"{this.Name} reaching it's endstation";
+            }
+            else
+            {
+                logEntry = $"{this.Name} making a stop at "
+                    + $"{Program.stations.Where(s => s.ID == TimeTables.First().StationID).First().Name}";
+            }
+            Program.AddToControllerLog(logEntry);
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(logEntry);
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 
@@ -233,12 +247,14 @@ namespace TrainTrack
         }
     }
 
+    // Not in use
     public class Switch
     {
         private SwitchDirection _direction;
-        SwitchDirection Direction { 
+        SwitchDirection Direction
+        {
             get => _direction;
-            set => _direction = (value == SwitchDirection.Left || value == SwitchDirection.Right) ? value : throw new ArgumentException();
+            set => _direction = (value == SwitchDirection.Left || value == SwitchDirection.Right) ? value : throw new ArgumentException("SwitchDirection must be enum Left or Right");
         }
 
         public Switch(SwitchDirection direction)
