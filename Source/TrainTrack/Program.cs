@@ -26,12 +26,15 @@ namespace TrainTrack
         {
             Initiate();
 
+            var switch1 = new TrainSwitch() { };
+            var switch2 = new TrainSwitch() { };
+
             // Control Tower
             // Carlos Lynos
             var plan1 = new TrainPlan()
                 .SetForTrain(trains[0])
                 .FollowTimeTable(timeTables)
-                .SetSwitch()
+                //.SetSwitch(switch1 , "10:32")
                 .StartTrain();
 
             var plan2 = new TrainPlan()
@@ -221,7 +224,10 @@ namespace TrainTrack
             {
                 logEntry = $"{this.Name} making a stop at "
                     + $"{Program.stations.Where(s => s.ID == TimeTables.First().StationID).First().Name}";
-                
+                if (2==(Program.stations.Where(s => s.ID == TimeTables.First().StationID).First().ID))
+                {
+
+                }
             }
             Program.AddToControllerLog(logEntry);
             Console.ForegroundColor = ConsoleColor.Cyan;
@@ -251,20 +257,20 @@ namespace TrainTrack
     }
 
     // Not in use
-    public class Switch
-    {
-        private SwitchDirection _direction;
-        SwitchDirection Direction
-        {
-            get => _direction;
-            set => _direction = (value == SwitchDirection.Left || value == SwitchDirection.Right) ? value : throw new ArgumentException("SwitchDirection must be enum Left or Right");
-        }
+    //public class Switch
+    //{
+    //    private SwitchDirection _direction;
+    //    SwitchDirection Direction
+    //    {
+    //        get => _direction;
+    //        set => _direction = (value == SwitchDirection.Left || value == SwitchDirection.Right) ? value : throw new ArgumentException("SwitchDirection must be enum Left or Right");
+    //    }
 
-        public Switch(SwitchDirection direction)
-        {
-            Direction = direction;
-        }
-    }
+    //    public Switch(SwitchDirection direction)
+    //    {
+    //        Direction = direction;
+    //    }
+    //}
 
     public class TimeTable
     {
