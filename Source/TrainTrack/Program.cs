@@ -29,7 +29,7 @@ namespace TrainTrack
             // Control Tower
             // Carlos Lynos
             var plan1 = new TrainPlan()
-                .TurnOffSwitch(switch1, "10:21")
+                .TurnOffSwitch(switch1, "10:32")
                 .SetForTrain(trains[0])
                 .FollowTimeTable(timeTables)
                 .StartTrain();
@@ -83,12 +83,6 @@ namespace TrainTrack
 
     public class TrainSwitch
     {
-        //private string _name;
-        //public string Name
-        //{
-        //    get => _name;
-        //    set => _name = value;
-        //}
         private DateTime _time;
         private SwitchStatus _status;
         public SwitchStatus Status
@@ -129,7 +123,7 @@ namespace TrainTrack
 
         public TrainPlan TurnOffSwitch(TrainSwitch trainSwitch, string time)
         {
-            trainSwitch.Status = SwitchStatus.Off;
+            trainSwitch.SetTime(time);
             return this;
         }
     }
@@ -209,11 +203,12 @@ namespace TrainTrack
 
             while (true)
             {
-                Thread.Sleep(250);
+                Thread.Sleep(1000);
 
-                if(Program.switch1.GetTime().ToString("hh:mm") == Program.worldTime.ToString("hh:mm"))
+                if(Program.switch1.GetTime() == Program.worldTime)
                 {
                     Console.WriteLine("From ProcessTrain: switch1 turn off");
+                    Program.switch1.Status = SwitchStatus.Off;
                 }
                 else
                 {
