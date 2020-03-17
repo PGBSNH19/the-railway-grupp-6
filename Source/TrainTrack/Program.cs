@@ -29,35 +29,66 @@ namespace TrainTrack
             // Control Tower
             // Carlos Lynos
             var plan1 = new TrainPlan()
-                .TurnOffSwitch(switch1, "10:32")
+                .TurnOffSwitch(switch1, "10:15")
                 .SetForTrain(trains[0])
                 .FollowTimeTable(timeTables)
                 .StartTrain();
 
             var plan2 = new TrainPlan()
-                .TurnOffSwitch(switch2,"10:38")
+                .TurnOffSwitch(switch2,"10:19")
                 .SetForTrain(trains[1])
-                .FollowTimeTable(new List<TimeTable>())
+                .FollowTimeTable(timeTables)
                 .StartTrain();
 
-            Console.ReadLine();
+            StartTimer();
+            Run();
+            Thread.Sleep(1000);
+            Environment.Exit(0);
+        }
+
+        private static void Run()
+        {
+            while(true)
+            {
+                // Exit condition => All trains has arrived
+                if (trains.Where(t => t.Arrived == true).Count() == 2)
+                    return;
+            }
         }
 
         private static void Initiate()
         {
+            Console.CursorVisible = false;
             ORM.FetchData(ref passengers, ref trains, ref stations, ref timeTables);
             PrintHeader();
             worldTime = DateTime.Parse(GENESIS_TIME);
+        }
 
+        private static void StartTimer()
+        {
             t = new Timer(TimerCallback, worldTime, 0, 1000);
         }
 
         private static void TimerCallback(Object o)
         {
             worldTime = worldTime.AddMinutes(1);
-            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"\t{worldTime.ToString("hh:mm")}");
-            Console.ForegroundColor = ConsoleColor.White;
+            CheckSwitch();
+        }
+
+        private static void CheckSwitch()
+        {
+            if (Program.switch1.GetTime() == Program.worldTime && Program.switch1.Status == SwitchStatus.On)
+            {
+                Console.WriteLine("\tControl Tower: switch1 turn off");
+                Program.switch1.Status = SwitchStatus.Off;
+            }
+
+            if (Program.switch2.GetTime() == Program.worldTime && Program.switch2.Status == SwitchStatus.On)
+            {
+                Console.WriteLine("\tControl Tower: switch2 turn off");
+                Program.switch2.Status = SwitchStatus.Off;
+            }
         }
 
         public static void AddToControllerLog(string logEntry)
@@ -78,6 +109,7 @@ namespace TrainTrack
   __ <   (   |  |  |  \ \  \ /  (   |  |   |    |   |  |    (   |  |   |  |   |    (   | 
  _| \_\ \__,_| _| _|   \_/\_/  \__,_| \__, |   \____| _|   \___/  \__,_|  .__/    \___/  
                                       ____/                              _|              ");
+            Console.Write("\n");
             Console.ForegroundColor = ConsoleColor.White;
         }
     }
@@ -129,6 +161,7 @@ namespace TrainTrack
         }
     }
 
+    [Obsolete]
     public class Passenger
     {
         private int _id;
@@ -150,12 +183,14 @@ namespace TrainTrack
         private int _speed;
         private bool _operated;
         private string _startTime;
+        private bool _arrived;
 
         public int ID { get => _id; }
         public string Name { get => _name; }
         public int Speed { get => _speed; }
         public bool Operated { get => _operated; }
         public string StartTime { get => _startTime; set { _startTime = value; } }
+        public bool Arrived { get => _arrived; }
 
         Thread TrainThread;
         List<TimeTable> TimeTables;
@@ -168,6 +203,7 @@ namespace TrainTrack
             _operated = operated;
             TrainThread = new Thread(ProcessTrain);
             TimeTables = new List<TimeTable>();
+            _arrived = false;
         }
 
         public Train FollowTimeTable(List<TimeTable> timeTables)
@@ -184,14 +220,14 @@ namespace TrainTrack
 
             var diff = DateTime.Parse(StartTime).Subtract(Program.worldTime).Duration();
 
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine($"{this.Name} departing in {diff.Minutes} minutes");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"\t{this.Name} departing in {diff.Minutes} minutes");
             Console.ForegroundColor = ConsoleColor.White;
 
             await Task.Delay(diff.Minutes * 1000);
 
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine($"{this.Name} departing --- Choo Choo");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"\t{this.Name} departing -- Choo! Choo!");
             Console.ForegroundColor = ConsoleColor.White;
 
             TrainThread.Start();
@@ -199,23 +235,15 @@ namespace TrainTrack
 
         public void ProcessTrain()
         {
+            // Put thread on hiatus
+            if (_arrived)
+                return;
+
             DateTime arrivalTime = DateTime.Parse(TimeTables.First().ArrivalTime);
-            DateTime startTime = DateTime.Parse(this.StartTime);
 
             while (true)
             {
                 Thread.Sleep(1000);
-
-                if(Program.switch1.GetTime() == Program.worldTime &&  Program.switch1.Status== SwitchStatus.On)
-                {
-                    Console.WriteLine("From ProcessTrain: switch1 turn off");
-                    Program.switch1.Status = SwitchStatus.Off;
-                }
-                if (Program.switch2.GetTime() == Program.worldTime && Program.switch2.Status == SwitchStatus.On)
-                {
-                    Console.WriteLine("From ProcessTrain: switch2 turn off");
-                    Program.switch2.Status = SwitchStatus.Off;
-                }
 
                 if (Program.worldTime.Minute == arrivalTime.Minute && Program.worldTime.Hour == arrivalTime.Hour)
                 {
@@ -226,12 +254,12 @@ namespace TrainTrack
 
                     if (TimeTables.Count == 0)
                     {
-                        // TrainThread should Abort but cannot
+                        _arrived = true;
                         return;
                     }
 
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.WriteLine($"{this.Name} departing...");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"\t{this.Name} departing...");
                     Console.ForegroundColor = ConsoleColor.White;
                     arrivalTime = DateTime.Parse(TimeTables.First().ArrivalTime);
                 }
@@ -243,11 +271,11 @@ namespace TrainTrack
             string logEntry;
             if (TimeTables.Count == 0)
             {
-                logEntry = $"{this.Name} reaching it's endstation";
+                logEntry = $"\t{this.Name} reached it's endstation";
             }
             else
             {
-                logEntry = $"{this.Name} making a stop at "
+                logEntry = $"\t{this.Name} making a stop at "
                     + $"{Program.stations.Where(s => s.ID == TimeTables.First().StationID).First().Name}";
                 if (2==(Program.stations.Where(s => s.ID == TimeTables.First().StationID).First().ID))
                 {
