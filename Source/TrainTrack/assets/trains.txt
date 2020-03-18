@@ -1,0 +1,2 @@
+2,Golden Arrow,120,true
+3,Lapplandståget,50,true
